@@ -46,6 +46,11 @@ The game consists of two roles: the `Seeker` and the `Hidder`. As soon as the ga
 > [!NOTE]
 > With the exception of "Whistle" and "Rage Baiter", all items require `Adrenaline Points` to be used. Adrenaline Points can also be obtained from Adrenaline Injections, which appear above Gold Blocks during the game. Also, during the game, players may periodically provide sound clues to their location, even unintentionally. This is called as `Reveal Time`.
 
+Finally, there is also a score system. Winners receive a total of 5 points for each victory. These points are stored on the Block `Game Totem Head Powered` scoreboard and can be accessed by all Players. To reset the score, simply go to creative mode, break Block `Game Totem Head Powered`, and place it back again.
+
+> [!WARNING]
+> This mod was created to be a complete game manager for Hide'n Seek, to be included in Hide'n Seek modpacks. Therefore, if your modpack contains this mod, it cannot be used to play Minecraft normally, such as in Survival mode.
+
 # Compatibility
 
 This mod requires Minecraft Java with Forge Mod Loader installed. You can see the supported Minecraft versions in the folders of this Repository.
