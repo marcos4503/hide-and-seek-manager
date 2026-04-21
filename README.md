@@ -48,6 +48,10 @@ The game consists of two roles: the `Seeker` and the `Hidder`. As soon as the ga
 
 Finally, there is also a score system. Winners receive a total of 5 points for each victory. These points are stored on the Block `Game Totem Head Powered` scoreboard and can be accessed by all Players. To reset the score, simply go to creative mode, break Block `Game Totem Head Powered`, and place it back again.
 
+If you want to see this mod in action, there's a modpack called `Vanilla+ Hide'n Seek 1.20.1` ready to play (in Brazilian Portuguese). This modpack can be installed and played through the `Minecraft+ Launcher`, which can be seen <a href="https://github.com/marcos4503/minecraft-plus">here</a>.
+
+**Configuration:** Several aspects of this mod are configurable. Things like items to be distributed to the Seekers, countdown time, cooldowns, costs, etc.
+
 > [!WARNING]
 > This mod was created to be a complete game manager for Hide'n Seek, to be included in Hide'n Seek modpacks. Therefore, if your modpack contains this mod, it cannot be used to play Minecraft normally, such as in Survival mode.
 
