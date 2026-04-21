@@ -26,3 +26,4 @@ This mod was developed to be the core of modpacks created for playing a Hide'n S
 
 Once all the steps are completed, the world will be ready to play Hide'n Seek. To start playing Hide'n Seek, after preparing your world, first open it for LAN so your friends can play with you. At least 2 players are required. Once you're ready to play, simply interact with the `Game Totem Head Powered`. It looks like a Carved Pumpkin!
 
+<img src="This-Repository/totem.png" />
