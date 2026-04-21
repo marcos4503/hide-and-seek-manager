@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "hidenseek:block/game_totem_head_deprecated_block" },
+    "facing=east": { "model": "hidenseek:block/game_totem_head_deprecated_block", "y": 90 },
+    "facing=south": { "model": "hidenseek:block/game_totem_head_deprecated_block", "y": 180 },
+    "facing=west": { "model": "hidenseek:block/game_totem_head_deprecated_block", "y": 270 }
+  }
+}

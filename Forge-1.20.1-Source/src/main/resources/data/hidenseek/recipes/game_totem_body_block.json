@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "# #",
+    "#A#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:oak_log"
+    },
+    "A": {
+      "item": "minecraft:iron_axe"
+    }
+  },
+  "result": {
+    "item": "hidenseek:game_totem_body_block",
+    "count": 1
+  }
+}

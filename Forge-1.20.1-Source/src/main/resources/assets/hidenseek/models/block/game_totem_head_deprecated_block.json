@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "hidenseek:block/game_totem_head_deprecated_block_side",
+    "up": "hidenseek:block/game_totem_head_deprecated_block_top",
+    "down": "hidenseek:block/game_totem_head_deprecated_block_top",
+    "north": "hidenseek:block/game_totem_head_deprecated_block_front",
+    "south": "hidenseek:block/game_totem_head_deprecated_block_side",
+    "east": "hidenseek:block/game_totem_head_deprecated_block_side",
+    "west": "hidenseek:block/game_totem_head_deprecated_block_side"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "hidenseek:block/game_totem_body_block"
+  }
+}

@@ -1,0 +1,168 @@
+Theses steps were runned, to prepare this project after being downloaded as MDK, from Forge website:
+
+1.  Make sure that the PC have a JDK (17) downloaded in somewhere, and knowed by the IntelliJ IDEA.
+
+2.  Delete the files "changelog.txt", "CREDITS.txt", "LICENSE.txt" and "README.txt", from the project.
+
+3.  Open the project in IntelliJ IDEA and wait Gradle Project Import. It can take a while.
+    Make sure that don't have errors.
+
+4.  Run a Gradle Sync in IDE. Make sure that don't have errors.
+
+5.  With the project opened, go to "Project Structure". In "SDK", select the "temurin-17" (write down
+    the path for this JDK in the PC, it will be used lately) and in "Language Level", select "17".
+    Finally, click in "OK" for save.
+
+6.  Go to "File" > "Settings..." and go to "Build, Execution, Deployment" > "Build Tools" and
+    "Gradle". In "Gradle JVM", make sure that the option "Project SDK" is selected. This way, the
+    Gradle will use the same JDK, that is being used by the Project.
+
+7.  Now, rename the package of the project domain, from "com.example.examplemod" to a new, like
+    "net.mojang.modname". Make sure that the Java classes now, are using the new package name, on
+    top of the scripts.
+
+8.  Go to class "ExampleMod.java" and delete unnecessary lines of code and re-organize the code, based
+    on the project needs.
+
+9.  Rename the class "ExampleMod.java" to "Main.java", for better organization of the project.
+
+10. If not necessary, delete the file "Config.java".
+
+11. In the script "Main.java", change the ID of the mod in the "MODID" variable.
+
+12. Now, go to "resources/META-INF/mods.toml" and on bottom of file, inform dependencies informations,
+    based on the dependencies that the mod will have.
+
+13. Now, open the "gradle.properties" and provide informations about your mod, in the properties like
+    "minecraft_version", "minecraft_version_range", "forge_version", "forge_version_range", 
+    "loader_version_range", "mod_id", "mod_name", "mod_license", "mod_version", "mod_group_id",
+    "mod_authors" and "mod_description".
+       NOTE: The "mod_id" property, need the same value of the "MODID" of the script "Main.java".
+             The "mod_group_id" property, need the same value of the package name, defined in
+             step 7.
+
+14. Still in "gradle.properties" file. Now, we will set the Mappings channel to be used in the mod
+    development. We can use the "official" Mappings, but we will use "parchmentmc", because the
+    ParchmentMC provide a bigger names and javadocs for methods, parameters, etc. The "official"
+    Mappings, don't have names for the parameters, methods, etc.
+    -
+    For this, change the property "mapping_channel" to "parchment". Then, change the property
+    "mapping_version" to the pattern like "YYYY.MM.DD-MinecraftVersion". In the Maven repository
+    of ParchmentMC, you can know all released versions for a version of Minecraft, example:
+    https://mvnrepository.com/artifact/org.parchmentmc.data/parchment-1.20.1
+    -
+    On "settings.gradle", put the repository of ParchmentMC in the repositories list:
+    pluginManagement {
+        repositories {
+            maven { url = 'https://maven.parchmentmc.org' } // Add this line
+        }
+    }
+    -
+    On "build.gradle", put the Librarian Plugin id, on the Plugins list:
+    plugins {
+        // This should be below the net.minecraftforge.gradle plugin
+        id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    }
+
+15. Run a Gradle Sync in IDE. Make sure that don't have errors.
+
+16. Now, open the IDE Terminal, for your mod project. And depending if the Terminal is the "CMD" or
+    "PowerShell", run the commands...
+    For CMD:        - set JAVA_HOME="C:\Users\junio\AppData\Local\JetBrains\JDK\temurin-17.0.16" & ./gradlew genIntellijRuns
+    For PowerShell: - $env:JAVA_HOME="C:\Users\junio\AppData\Local\JetBrains\JDK\temurin-17.0.16" ; ./gradlew genIntellijRuns
+    -
+    This command, allows you to specify the JDK to be used in the command "./gradlew genIntellijRuns".
+    -
+    After run the command, it should take some time. This command will download a lot of files
+    for the path of "C:\Users\USER\.gradle\caches" too. If the files of "caches" is cleaned, may be
+    necessary run the commands above, again.
+    -
+    Make sure that the command run, don't have errors.
+
+17. To test if all steps were worked well, in IDE, go to "Gradle" tab, in the right of interface, then,
+    click in "Tasks" > "forgegradle runs" and click in "runClient", to start the Debug Test Client.
+    If the Client starts, and you can see your mod in the Mod List, with all informations, means that
+    your mod is ok. You can close the Client now.
+    -
+    The Debug Test Client will run from the "run" folder (present in your project) using all files
+    inside the "run" folder. Any code written in "src/main/java" will be applied automatically.
+    -
+    In the IDE, on "Run" tab, you can see the logs launched by the Client, in realtime.
+    -
+    To test the mod inside a Debug Test Dedicated Server, go to "Gradle" tab, in the right of interface,
+    then, click in "Tasks" > "forgegradle runs" and click in "runServer". the server will initially shut
+    down immediately. You will need to accept the Minecraft EULA by editing the "eula.txt" file in the
+    "run" directory. Once accepted, the server will load, which can then be accessed via a direct 
+    connect to localhost.
+    -
+    The Debug Test Dedicated Server will run from the "run" folder (present in your project) using all
+    files inside the "run" folder. Any code written in "src/main/java" will be applied automatically.
+    -
+    In the IDE, on "Run" tab, you can see the logs launched by the Dedicated Server, in realtime. To
+    make login on server and send commands, you can use the IP "localhost". To connect to server and
+    send commands, run the task "runClient", and connect to the server, while the server is running.
+    -
+    To connect to server, you may need to edit the file "server.properties" and disable the "online-mode"
+    property, to allow your Debug Client to connect, and to be allowed to send commands, you need to make
+    the "Dev" player OP. To this, edit the file "ops.json", of the server, and add a entry to allow the
+    "Dev" player, be OP. The entry should look like this:
+    {
+        "uuid": "380df991-f603-344c-a090-369bad2a924a",
+        "name": "Dev",
+        "level": 4,
+        "bypassesPlayerLimit": false
+    }
+    The "uuid" can be extracted from the files "usercache.json" or "usernamecache.json", from the server,
+    if your Debug Client was logged into server, at least once.
+
+18. Now, whenever you want to test your mod, you can click on "Play" icon in the top of IDE interface,
+    to start the Client. Just make sure that the "ProjectName [runClient]" is displayed, in the selector
+    on top of the IDE interface.
+    -
+    You should always test your mod in a dedicated server environment, too. This includes client-only
+    mods as they should not do anything when loaded on the server.
+    -
+    Hot-Swapping is a feature that let you to swap-out code, resources and datapack of your mod without
+    restarting the game, allowing you to see changes quickly and tinker around with it more easily.
+    For Swapping Resources: After you made changes to resources file, while the Debug Client is running,
+                            click in "Build" then "Build Project" button. After that, hit "F3 + T" ingame.
+    For Swapping Datapack:  After you made changes to datapack files of your mod, while the Debug Client
+                            is running, click in "Build" then "Build Project" button. After that, ingame,
+                            use the command "/datapack" to disable and then re-enable datapack of your mod.
+    For Swapping Code:      First, make sure that the Debug Client is running in Debug Mode. It is usually
+                            indicated by green bug-shaped icon, on side of the "Play" button, on top of
+                            the IDE UI. To run the Debug Client in Debug Mode, you just need to execute
+                            the step 18, but, instead of clicking "Play" button, click in "Bug" button,
+                            on side of the "Play" button.
+                            After making changes to the Code, just go to "Build" then "Build Project"
+                            button. The IDE will display a warning, asking by reload the changed classes.
+                            In the dialog, allow the IDE to reload the changed classes. Go back to the
+                            Debug Client, and you now will be the script changed, without need to close
+                            the game.
+                            As a fast option, you can go to a single Java file, and them click in "Build",
+                            then "Recompile 'JavaScript.java'". This is equivalent to "Build" and then
+                            "Build Project", but only re-compile one Java file.
+                            NOTE: This Code Hot-Swapping not works for Mixins code (Injections, Redirects,
+                                  Overwrites, etc) because Mixins are injeted in JVM of the game, at
+                                  loading time, once.
+                            NOTE: This Code Hot-Swapping not works with codes that is invoked or runned
+                                  only during the load of the game, at startup.
+                            NOTE: You would still need to restart game if you added/removed/renamed any
+                                  method/variable/class of your script. You not need to restart the game,
+                                  if only edited variable values (not constants) and codes inside methods.
+
+19. To build your mod, and distribute, click in "Gradle" tab, in the IDE. Click in "Tasks", then
+    "build", then "build" task. The JAR result of the build will be placed in "build/libs" inside the
+    project. This JAR file can be placed in the "mods" folder of a Forge-enabled Minecraft setup
+    or distributed.
+
+20. Now you can proceed to develop your mod!
+
+
+
+
+
+Steps listed here, was extracted from these materials:
+https://www.youtube.com/watch?v=55qUIf3GMss&list=PLKGarocXCE1H9Y21-pxjt5Pt8bW14twa-&index=3
+https://docs.minecraftforge.net/en/1.20.1/gettingstarted/
+https://forge.gemwire.uk/wiki/Hotswap

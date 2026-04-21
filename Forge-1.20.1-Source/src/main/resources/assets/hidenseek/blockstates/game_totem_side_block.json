@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "hidenseek:block/game_totem_side_block",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "hidenseek:block/game_totem_side_block"
+    },
+    "axis=z": {
+      "model": "hidenseek:block/game_totem_side_block",
+      "x": 90
+    }
+  }
+}

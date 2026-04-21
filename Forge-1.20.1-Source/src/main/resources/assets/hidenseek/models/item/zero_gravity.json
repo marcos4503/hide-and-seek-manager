@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hidenseek:item/zero_gravity"
+  },
+  "overrides": [
+    {
+      "predicate": { "hidenseek:not_ready": 1.0 },
+      "model": "hidenseek:item/zero_gravity_off"
+    }
+  ]
+}

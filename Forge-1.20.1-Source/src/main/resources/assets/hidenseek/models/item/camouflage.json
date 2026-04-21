@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hidenseek:item/camouflage"
+  },
+  "overrides": [
+    {
+      "predicate": { "hidenseek:not_ready": 1.0 },
+      "model": "hidenseek:item/camouflage_off"
+    }
+  ]
+}

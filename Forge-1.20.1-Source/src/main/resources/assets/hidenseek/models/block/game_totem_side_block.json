@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "hidenseek:block/game_totem_side_block_top",
+    "side": "hidenseek:block/game_totem_side_block_side"
+  }
+}

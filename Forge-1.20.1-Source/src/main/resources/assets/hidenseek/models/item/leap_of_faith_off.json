@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hidenseek:item/leap_of_faith_off"
+  }
+}

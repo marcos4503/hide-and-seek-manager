@@ -1,0 +1,26 @@
+{
+  "whistle0": {
+    "subtitle": "subtitles.hidenseek.whistle0",
+    "sounds": [
+      "hidenseek:whistle0"
+    ]
+  },
+  "whistle1": {
+    "subtitle": "subtitles.hidenseek.whistle1",
+    "sounds": [
+      "hidenseek:whistle1"
+    ]
+  },
+  "whistle2": {
+    "subtitle": "subtitles.hidenseek.whistle2",
+    "sounds": [
+      "hidenseek:whistle2"
+    ]
+  },
+  "whistle3": {
+    "subtitle": "subtitles.hidenseek.whistle3",
+    "sounds": [
+      "hidenseek:whistle3"
+    ]
+  }
+}

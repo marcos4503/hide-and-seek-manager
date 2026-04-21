@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hidenseek:item/smoke_bomb"
+  },
+  "overrides": [
+    {
+      "predicate": { "hidenseek:not_ready": 1.0 },
+      "model": "hidenseek:item/smoke_bomb_off"
+    }
+  ]
+}

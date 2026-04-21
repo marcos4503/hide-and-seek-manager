@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hidenseek:item/leap_of_faith"
+  },
+  "overrides": [
+    {
+      "predicate": { "hidenseek:not_ready": 1.0 },
+      "model": "hidenseek:item/leap_of_faith_off"
+    }
+  ]
+}

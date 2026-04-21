@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hidenseek:item/totem_tracker"
+  },
+  "overrides": [
+    {
+      "predicate": { "hidenseek:not_ready": 1.0 },
+      "model": "hidenseek:item/totem_tracker_off"
+    }
+  ]
+}

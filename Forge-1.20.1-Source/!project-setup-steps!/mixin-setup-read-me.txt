@@ -1,0 +1,248 @@
+These steps were runned, to prepare this project to use Mixins:
+
+1.  Make sure that the project was already setup, and that the "Minecraft Development" extension
+    is installed in the IDE. This extension is needed for work with Mixins.
+
+2.  We need to make the following changes to the "build.gradle" file, in order to configure the project
+    to be run in development, and to manage obfuscation. To start, open the file "build.gradle".
+
+3.  On "build.gradle", locate the plugins block at the top of the file. Now add the MixinGradle plugin
+    by adding the following line to end of the plugins block, before the closing curly brace:
+    -
+    id 'org.spongepowered.mixin' version '0.7.+'
+
+4.  The MixinGradle Plugin have the job of configure the Mixin Annotation Processor (AP), however the
+    AP is not applied automatically, we need to add it as a dependency. The AP dependency should be the
+    same version or newer as the version of the MixinGradle Plugin used in your project.
+    To make this, add the text below, in "dependencies" block, in the "build.gradle" file.
+    -
+    // Apply Mixin AP
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+5.  Now, we need to configure the MixinGradle Plugin. To start, put the text below, after the
+    "dependencies" block, that we have injected the text of the step 4.
+    -
+    mixin {
+        // MixinGradle Settings
+    }
+
+6.  In the new "mixin" block, that we have added in the step 5, add the text below, to setup the
+    important settings, needed by MixinGradle Plugin.
+    -
+    // MixinGradle Settings
+    add sourceSets.main, 'mixins.mymod.refmap.json'
+    config 'mixins.mymod.json'
+
+    // Disable these two, for JARs for public distribution
+    debug.verbose = true
+    debug.export = true
+    -
+    The MixinGradle Plugin can configure the AP options, but we need to tell it the name of the
+    refmap files to generate for each compile task, this must correspond to the refmap name in the
+    config JSON.
+    NOTE: To build JARs for public distribution, remember to disable the "debug.verbose" and
+          "debug.export" options!
+
+7.  Run a Gradle Sync in IDE. Make sure that don't have errors.
+
+8.  Because of all steps runned above, we need to regenerate the Runs, for the IDE.
+    Now, open the IDE Terminal, for your mod project. And depending if the Terminal is the "CMD" or
+    "PowerShell", run the commands...
+    For CMD:        - set JAVA_HOME="C:\Users\junio\AppData\Local\JetBrains\JDK\temurin-17.0.16" & ./gradlew genIntellijRuns
+    For PowerShell: - $env:JAVA_HOME="C:\Users\junio\AppData\Local\JetBrains\JDK\temurin-17.0.16" ; ./gradlew genIntellijRuns
+    -
+    This command, allows you to specify the JDK to be used in the command "./gradlew genIntellijRuns".
+    -
+    This command need to be runned again, if a option of MixinGradle Plugin, that affect a run, is changed.
+
+9.  In the path "src/main/resources" in the project, create a file with the name of "mixins.ModName.json".
+    In the name, replace the "ModName" with the ID of yor mod. For example "mixins.antiraidfarm.json".
+    Inside this file, put the text below
+    -
+    {
+        "required": true,
+        "compatibilityLevel": "JAVA_17",
+        "package": "com.example.ModName.mixin",
+        "refmap": "mixins.ModName.refmap.json",
+        "injectors":{
+            "defaultRequire": 1
+        },
+        "mixins": [ ],
+        "client": [ ],
+        "server": [ ]
+    }
+
+10. Go back to the file "build.gradle", and find the block "mixin". Inside this block, go to the line
+    that have the "config" parameter and replace the text 'mixins.mymod.json' by the name of the file
+    created in the step 9 (with simple quotes).
+
+11. In the root of your package, where the file "Main.java" exists, create a new folder with the
+    name of "mixin".
+
+12. Go back to the JSON file created in step 9, and, in "package" variable, replace the value with
+    the full package name of your mod, until "mixin" folder. Example: "xyz.windsoft.antiraidfarm.mixin"
+
+13. Go back to the JSON file created in step 9, and, in "refmap" variable, replace the part where
+    have "ModName" with the Mod ID of your mod. Example: "mixins.antiraidfarm.refmap.json"
+
+14. Again, go to file "build.gradle", and find the block "mixin". Inside this block, go to the line
+    that have the "add" parameter and replace the text 'mixins.mymod.refmap.json' with the exact value
+    of the variable "refmap", present inside the file created in step 9. If these two don't match,
+    the builded JARs of your mod, not will have a Refmap present, what will generate crashes when
+    game try to load Mixins of your mod.
+
+15. Run a Gradle Sync in IDE. Make sure that don't have errors.
+
+16. Now, open the IDE Terminal, for your mod project. And depending if the Terminal is the "CMD" or
+    "PowerShell", run the commands...
+    For CMD:        - set JAVA_HOME="C:\Users\junio\AppData\Local\JetBrains\JDK\temurin-17.0.16" & ./gradlew genIntellijRuns
+    For PowerShell: - $env:JAVA_HOME="C:\Users\junio\AppData\Local\JetBrains\JDK\temurin-17.0.16" ; ./gradlew genIntellijRuns
+
+17. Now the project is ready to use of Mixins! Remember, all Java Scripts that will use Mixins, need
+    to be created inside "mixin" folder, created on side of the "Main.java" file. And the name of
+    these Java Scripts, must end with "Mixin.java" for better organization. Example: "SpeedStatusEffectMixin.java".
+    For each new Mixin class created, do a reference for it in the file created in step 9. For example,
+    if we have created the file "SpeedStatusEffectMixin.java", so this need to be referenced on the file,
+    like this...
+    -
+    {
+        ...
+        "mixins": [
+            "SpeedStatusEffectMixin"
+        ],
+        "client": [],
+        "server": []
+    }
+    -
+    If a Mixin should run only in client, then, this Mixin should be registered in "client" array, and
+    if should run only in server, should be registered in "server" array. Mixins registered in "mixins",
+    can run in both, client and server.
+    -
+    And that is. Is recommended to study more about Mixins, for a good use in the project.
+    See below for a example Mixin class.
+
+
+
+
+
+Steps listed here, was extracted from these materials:
+https://www.youtube.com/watch?v=1V33VKGhghg
+https://github.com/SpongePowered/Mixin/wiki/Mixins-on-Minecraft-Forge
+
+
+
+
+
+
+
+
+
+Example of a Mixin Class, commented. For more material to study, check at "https://github.com/SpongePowered/Mixin/wiki"
+======================================================================================================
+package xyz.windsoft.antiraidfarm.mixin;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+/*
+ * This class have the Mixins for inject code into "Player" entity
+ */
+
+//All code changes by Injections, Overwrites, Redirections, etc. in this class, will apply to the "Player.class" of the game code...
+@Mixin(Player.class)
+public abstract class PlayerMixin {
+
+    //Private methods
+    private Player self(){
+        //Mixin can't use "this" keyword inside methods code, so, calling this method is the same of use "this" keyword, to be used inside of Mixin methods code...
+        return (Player)(Object) this;
+    }
+
+    //Private redirections
+
+    @Redirect(method = "getDigSpeed",  at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getBlockEfficiency(Lnet/minecraft/world/entity/LivingEntity;)I"))
+    private int getEffiProxy(LivingEntity livingEntity){
+        //Using "Redirect" we can replace a method that will be called inside the method informed in "method" annotation. For example, in the game code, inside
+        // the "getDigSpeed", the method "getDigSpeed" call the method "EnchantmentHelper.getBlockEfficiency" to get the block effeciency. With the "Redirect",
+        // we can replace the call ONLY for the method "EnchantmentHelper.getBlockEfficiency", inside the method "getDigSpeed" to call this method ("getEffiProxy"),
+        // while the rest of the code of the method "getDigSpeed" remains intouched.
+        //Using "INVOKE" property, means that the redirection will occur when, inside the "getDigSpeed" method, he invokes the method informed in "target" annotation
+        //Using the "target" annotation, we can especify what method will have their call redirected to this method ("getEffiProxy").
+
+        //Inside the "getDigSpeed" method, of the game code, we make the calls for "EnchantmentHelper.getBlockEfficiency" be redirected to this "getEffiProxy" method,
+        //and then, return a new value that is the normal "EnchantmentHelper.getBlockEfficiency" + the levels of a possible Fortune enchantment.
+        return (EnchantmentHelper.getBlockEfficiency(livingEntity) + EnchantmentHelper.getEnchantmentLevel(Enchantments.BLOCK_FORTUNE, livingEntity));
+    }
+
+
+
+    //Private Injections
+
+    @Inject(method = "touch", at = @At("HEAD"))
+    private void touch (Entity entity, CallbackInfo ci){
+        //Using "Inject" we can inject code into the original code, while mantain the original code of the method of the class, of the game, intouched!
+        //Using "HEAD" property, means that we will inject this code BEFORE all the original code, inside this method...
+        //This code will inject a code to show a message when the player touches other entity, before continues to run the original game code.
+
+        //New injected code...
+        self().displayClientMessage(Component.literal("touched!").withStyle(ChatFormatting.DARK_AQUA), true);
+
+        //Calling "return" will only stop the execution of this injection code, but not, of the original code.
+        //In injections, instead of using "return", we use this. Because, the "ci.cancel()", cancel the execution of the rest of this method code...
+        //ci.cancel();
+        //But, if is needed return a value, to cancel, we can use this...
+        //cir.setReturnValue(VALUE);
+        //ci.cancel();
+        //In bot cases, the annotation "cancellable = true" may be required, after the "at = @At()" annotation.
+    }
+
+
+
+    //Private Overwrites
+
+    /**
+     * @author marcos4503
+     * @reason None
+     */
+    @Overwrite
+    private void touch (Entity entity){
+        //Better avoid use of "Overwrite", because this Mixin type, change the integer original code of the method of the class of the game...
+        //This code will show a message when the player touches other entity, and the run the original game code.
+
+        //New injected code...
+        self().displayClientMessage(Component.literal("touched!"), false);
+
+        //Original game code...
+        entity.playerTouch(self());
+    }
+
+
+
+    //Private Variable Modifications
+
+    @ModifyVariable(method = "drop(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At("HEAD"), argsOnly = true)
+    private ItemStack modifyIn(ItemStack stack){
+        //Using "ModifyVariable" we can insert a code that will modify the variable of the method.
+        //With the "method" annotation, we can specify what method of this class, will be affected by this variable modification...
+        //Using "HEAD" property, means that we will inject the variable code modification at the top, BEFORE all original code, inside this method...
+        //Using the "argsOnly" annotation, we can specify that this variable modification will affect ONLY the variables of parametes, of this method...
+        //This code will make every item dropped by the player (in same quantity), be transformed in Diamond.
+
+        //Variable modification injection code...
+        return new ItemStack(Items.DIAMOND).copyWithCount(stack.getCount());
+    }
+}

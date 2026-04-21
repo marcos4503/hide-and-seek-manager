@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,lit=false": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 0 },
+    "facing=south,lit=false": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 180 },
+    "facing=east,lit=false": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 90 },
+    "facing=west,lit=false": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 270 },
+    "facing=north,lit=true": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 0 },
+    "facing=south,lit=true": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 180 },
+    "facing=east,lit=true": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 90 },
+    "facing=west,lit=true": { "model": "hidenseek:block/game_totem_head_powered_block", "y": 270 }
+  }
+}
