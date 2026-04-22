@@ -1,7 +1,7 @@
 <p align="center" style="font-size: 2px;">
     <img src="This-Repository/mod-cover.png" />
     <br> 
-    To download this mod's JAR file, go to the folder corresponding to your Minecraft version, in this Repository, then navigate to the "build/libs" directory. All JAR versions of this mod will be located there.
+    To download this mod's JAR file, go to the folder corresponding to your Minecraft version, in this Repository, like "Forge-XX.XX.XX-JARs". All JAR versions of this mod will be located there.
 </p>
 
 # About this Mod
