@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -145,25 +146,33 @@ public class OnRenderGui {
         if (currentGui == GUI.Progress){
             //If is required to render the Adrenaline Points GUI, continue...
             if (progress_adrenalinePoints != -1){
-                //Get the title of the Adrenaline Points panel
-                String adrenalinePanelTitle = Component.translatable("gui.hidenseek.game_stage.progress.hidder_adrenaline_panel_title").getString();
-                int adrenalinePanelTitleWidth = (minecraftFont.width(adrenalinePanelTitle) + 10);
-                int adrenalinePanelTitleHeight = minecraftFont.lineHeight;
-                int adrenalinePanelContentHeight = 22;
-                //Prepare the position of the Panel
-                int conditionalAdrenalinePanelX = 0;
+                //Get reference for Local Player...
                 LocalPlayer localPlayer = Minecraft.getInstance().player;
-                if (localPlayer != null)
-                    if (localPlayer.getOffhandItem().isEmpty() == false)
-                        conditionalAdrenalinePanelX = 29;
-                int adrenalinePanelX = (int)(((float)screenWidth / 2.0f) - ((float)adrenalinePanelTitleWidth / 2.0f) - 128 - conditionalAdrenalinePanelX - Config.guiAdrenalineXOffset);
-                int adrenalinePanelY = (screenHeight - adrenalinePanelContentHeight);
-                //Render the Adrenaline Points Panel
-                guiGraphics.blitNineSliced(ADRENALINE_GUI, adrenalinePanelX, adrenalinePanelY, (adrenalinePanelTitleWidth), (adrenalinePanelContentHeight), 2, 32, 32, 0, 0);
-                //Render the Adrenaline Points title
-                drawStringWithOutline(guiGraphics, minecraftFont, adrenalinePanelTitle, (adrenalinePanelX + 5), (adrenalinePanelY - 5), 0xFFFFFF, 0x000000, false);
-                //Render the Adreenaline Points
-                drawStringWithOutline(guiGraphics, minecraftFont, String.valueOf(progress_adrenalinePoints), (adrenalinePanelX + 5), (adrenalinePanelY + 7), 0xFFFFD200, 0x000000, false);
+                //If have a Local Player...
+                if (localPlayer != null){
+                    //Get reference for Game Type
+                    GameType gameMode = Minecraft.getInstance().gameMode.getPlayerMode();
+                    //If is out of the Spectator, render the Adrenaline Points GUI...
+                    if (gameMode != GameType.SPECTATOR){
+                        //Get the title of the Adrenaline Points panel
+                        String adrenalinePanelTitle = Component.translatable("gui.hidenseek.game_stage.progress.hidder_adrenaline_panel_title").getString();
+                        int adrenalinePanelTitleWidth = (minecraftFont.width(adrenalinePanelTitle) + 10);
+                        int adrenalinePanelTitleHeight = minecraftFont.lineHeight;
+                        int adrenalinePanelContentHeight = 22;
+                        //Prepare the position of the Panel
+                        int conditionalAdrenalinePanelX = 0;
+                        if (localPlayer.getOffhandItem().isEmpty() == false)
+                            conditionalAdrenalinePanelX = 29;
+                        int adrenalinePanelX = (int)(((float)screenWidth / 2.0f) - ((float)adrenalinePanelTitleWidth / 2.0f) - 128 - conditionalAdrenalinePanelX - Config.guiAdrenalineXOffset);
+                        int adrenalinePanelY = (screenHeight - adrenalinePanelContentHeight);
+                        //Render the Adrenaline Points Panel
+                        guiGraphics.blitNineSliced(ADRENALINE_GUI, adrenalinePanelX, adrenalinePanelY, (adrenalinePanelTitleWidth), (adrenalinePanelContentHeight), 2, 32, 32, 0, 0);
+                        //Render the Adrenaline Points title
+                        drawStringWithOutline(guiGraphics, minecraftFont, adrenalinePanelTitle, (adrenalinePanelX + 5), (adrenalinePanelY - 5), 0xFFFFFF, 0x000000, false);
+                        //Render the Adreenaline Points
+                        drawStringWithOutline(guiGraphics, minecraftFont, String.valueOf(progress_adrenalinePoints), (adrenalinePanelX + 5), (adrenalinePanelY + 7), 0xFFFFD200, 0x000000, false);
+                    }
+                }
             }
             //If is required to render the Sound Bait Distance Feedback GUI, continue...
             if ((System.currentTimeMillis() - progress_soundBaitFeedbackLastTriggerTimeMs) < 5000l){

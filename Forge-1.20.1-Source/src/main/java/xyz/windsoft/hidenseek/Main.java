@@ -53,6 +53,7 @@ public class Main
             MinecraftForge.EVENT_BUS.register(new OnClientTick());
             MinecraftForge.EVENT_BUS.register(new OnClientOpenScreen());
             MinecraftForge.EVENT_BUS.register(new OnClientPlaySoundEvent());
+            MinecraftForge.EVENT_BUS.register(new OnClientRenderEntity());
 
             //Run needed code on Main Thread...
             event.enqueueWork(() -> {

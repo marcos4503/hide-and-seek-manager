@@ -86,5 +86,7 @@ public class OnRightClickBlock {
         //Add a information to the Player
         CompoundTag playerPersistentNbt = serverPlayer.getPersistentData();
         playerPersistentNbt.putBoolean("wasSelfSaved", true);
+        //Add a Allay to represent this Player on Spectator
+        GameManagerLogic.AddAllayToRepresentServerPlayer(serverPlayer);
     }
 }

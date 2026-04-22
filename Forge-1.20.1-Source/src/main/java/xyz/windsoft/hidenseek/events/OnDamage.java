@@ -98,6 +98,8 @@ public class OnDamage {
                 playerPersistentNbt.putBoolean("wasEliminated", true);
                 //Reset the ivulnerability, after a safe ensured
                 serverPlayer.setInvulnerable(false);
+                //Add a Vex to represent this Player in Spectator
+                GameManagerLogic.AddVexToRepresentServerPlayer(serverPlayer);
             }
         }
         //If don't have a game running...

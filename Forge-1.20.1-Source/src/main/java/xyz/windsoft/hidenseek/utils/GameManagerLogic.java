@@ -28,9 +28,14 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Objective;
@@ -65,6 +71,7 @@ import com.mojang.brigadier.StringReader;
 import xyz.windsoft.hidenseek.sounds.ModSounds;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /*
  * This class will manage the Hide'n Seek game matches, giving points, managing the duration, etc. This class run
@@ -80,6 +87,7 @@ public class GameManagerLogic {
     //Private constant variables
     private static SoundEvent[] HIDDER_CLUES = {SoundEvents.VILLAGER_AMBIENT, SoundEvents.PANDA_SNEEZE, SoundEvents.BEE_LOOP, SoundEvents.WOOD_STEP, SoundEvents.CHICKEN_HURT, SoundEvents.GOAT_SCREAMING_AMBIENT, SoundEvents.GHAST_AMBIENT};
     private static SoundEvent[] HIDDER_WHISTLE = {ModSounds.WHISTLE_0.get(), ModSounds.WHISTLE_1.get(), ModSounds.WHISTLE_2.get(), ModSounds.WHISTLE_3.get()};
+    private static Predicate<Player> ALLAY_VEX_COLLISION_FILTER = player -> player.isAlive() && !player.isSpectator();
 
     //Private static cache variables (not needed to be reseted on game finished)
     private static UUID lastPlayerSeeker = null;
@@ -115,6 +123,8 @@ public class GameManagerLogic {
 
     //Private static variables of Game State Machine
     private static GameStage currentGameState = GameStage.StandBy;
+    private static HashMap<Allay, ServerPlayer> allaysOfSpectators = null;
+    private static HashMap<Vex, ServerPlayer> vexesOfSpectators = null;
     private static ServerBossEvent hiddersLeftBossBar = null;
     private static Scoreboard gameScoreboard = null;
     private static Objective gameScoreboardObjective = null;
@@ -218,6 +228,9 @@ public class GameManagerLogic {
         //If not is the logical server, stop here
         //if (FMLEnvironment.dist != Dist.DEDICATED_SERVER)
         //    return;
+
+        //Do the processing on Spectator Allays and Vexes, if necessary
+        ProcessAllSpectatorAllaysAndVexesOnServerTick(event);
 
         //Create the Stage Machine, runner (1 Second = 20 Ticks, Tick = 50ms)
         switch (currentGameState){
@@ -706,13 +719,14 @@ public class GameManagerLogic {
             for (int i = 0; i < seekersList.size(); i++)
                 seekersList.get(i).addEffect(new MobEffectInstance(MobEffects.GLOWING, 100, 0, false, false));
             //Reveal the Hidders with a random sound
-            for (int i = 0; i < hiddersList.size(); i++){
-                //Get a random sound
-                RandomSource random = startedByPlayer.level().getRandom();
-                SoundEvent randomSound = HIDDER_CLUES[random.nextInt(HIDDER_CLUES.length)];
-                //Play the sound
-                startedByPlayer.level().playSound(null, hiddersList.get(i).getX(), hiddersList.get(i).getY(), hiddersList.get(i).getZ(), randomSound, SoundSource.PLAYERS, 1.0f, 0.8f + random.nextFloat() * 0.4f);
-            }
+            for (int i = 0; i < hiddersList.size(); i++)
+                if (hiddersList.get(i).gameMode.getGameModeForPlayer() != GameType.SPECTATOR){
+                    //Get a random sound
+                    RandomSource random = startedByPlayer.level().getRandom();
+                    SoundEvent randomSound = HIDDER_CLUES[random.nextInt(HIDDER_CLUES.length)];
+                    //Play the sound
+                    startedByPlayer.level().playSound(null, hiddersList.get(i).getX(), hiddersList.get(i).getY(), hiddersList.get(i).getZ(), randomSound, SoundSource.PLAYERS, 1.0f, 0.8f + random.nextFloat() * 0.4f);
+                }
             //Refill the itens of seeker inventory, if is desired...
             if (Config.seekerRefillInventorySlots == true)
                 for (int i = 0; i < seekersList.size(); i++){
@@ -1093,6 +1107,8 @@ public class GameManagerLogic {
             startTimeInMillis = -1;
             isGameBadgeCollectedSuccessfully = false;
             //currentGameState = GameStage.StandBy;
+            allaysOfSpectators = null;
+            vexesOfSpectators = null;
             hiddersLeftBossBar = null;
             gameScoreboard = null;
             gameScoreboardObjective = null;
@@ -1354,5 +1370,123 @@ public class GameManagerLogic {
         //Considering a network latency of upload and download of Client/Server, if this item have more than 6 Ticks (300ms) of remaing Cooldown, inform the Client of the remaing Cooldown
         if (remaingTicks > 6)
             serverPlayer.connection.send(new ClientboundCooldownPacket(itemToCheck, remaingTicks));
+    }
+
+    public static void AddAllayToRepresentServerPlayer(ServerPlayer serverPlayer){
+        //Create a Allay with no AI, to represent this Player
+        Allay specAllay = EntityType.ALLAY.create(serverPlayer.level());
+        if (specAllay != null){
+            specAllay.setCanPickUpLoot(false);
+            specAllay.setNoAi(true);
+            specAllay.goalSelector.getAvailableGoals().removeIf(goal -> true);
+            specAllay.setInvulnerable(true);
+            specAllay.setNoGravity(true);
+            specAllay.noPhysics = true;
+            specAllay.blocksBuilding = false;
+            specAllay.setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
+            specAllay.setMaxUpStep(0.0f);
+            specAllay.refreshDimensions();
+            specAllay.setSilent(true);
+            specAllay.setPersistenceRequired();
+            specAllay.setCustomName(serverPlayer.getDisplayName());
+            specAllay.setCustomNameVisible(false);
+            specAllay.setPos(serverPlayer.position());
+            specAllay.addTag("entity_to_clear");
+            specAllay.addTag(("owner_uuid_" + serverPlayer.getUUID().toString()));
+            serverPlayer.level().addFreshEntity(specAllay);
+        }
+
+        //If the Allays of Spectators HashMap was not initialized, initialize it
+        if (allaysOfSpectators == null)
+            allaysOfSpectators = new HashMap<>();
+
+        //Add this Allay to the HashMap of Allays of Spectators
+        allaysOfSpectators.put(specAllay, serverPlayer);
+    }
+
+    public static void AddVexToRepresentServerPlayer(ServerPlayer serverPlayer){
+        //Create a Vex with no AI, to represent this Player
+        Vex specVex = EntityType.VEX.create(serverPlayer.level());
+        if (specVex != null){
+            specVex.setCanPickUpLoot(false);
+            specVex.setNoAi(true);
+            specVex.goalSelector.getAvailableGoals().removeIf(goal -> true);
+            specVex.setIsCharging(false);
+            specVex.setInvulnerable(true);
+            specVex.setNoGravity(true);
+            specVex.noPhysics = true;
+            specVex.blocksBuilding = false;
+            specVex.setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
+            specVex.setMaxUpStep(0.0f);
+            specVex.refreshDimensions();
+            specVex.setSilent(true);
+            specVex.setPersistenceRequired();
+            specVex.setLimitedLife(0);
+            specVex.setCustomName(serverPlayer.getDisplayName());
+            specVex.setCustomNameVisible(false);
+            specVex.setPos(serverPlayer.position());
+            specVex.addTag("entity_to_clear");
+            specVex.addTag(("owner_uuid_" + serverPlayer.getUUID().toString()));
+            serverPlayer.level().addFreshEntity(specVex);
+        }
+
+        //If the Vex of Spectators HashMap was not initialized, initialize it
+        if (vexesOfSpectators == null)
+            vexesOfSpectators = new HashMap<>();
+
+        //Add this Vex to the HashMap of Vexes of Spectators
+        vexesOfSpectators.put(specVex, serverPlayer);
+    }
+
+    public static void ProcessAllSpectatorAllaysAndVexesOnServerTick(TickEvent.ServerTickEvent event){
+        //Iterate through all Allays of Spectators, if have Allays for it
+        if (allaysOfSpectators != null)
+            for (Map.Entry<Allay, ServerPlayer> entry : allaysOfSpectators.entrySet()) {
+                //Get the references
+                Allay targetAllay = entry.getKey();
+                ServerPlayer ownerServerPlayer = entry.getValue();
+                //If have a null reference, skip to next
+                if (targetAllay == null || ownerServerPlayer == null)
+                    continue;
+                //Prepare the Y offset of the Allay to the current Player position
+                float[] yOffset = new float[]{ 0.0f };
+                AABB searchA = new AABB((ownerServerPlayer.getX() - 0.5f), (ownerServerPlayer.getY() - 0.6f), (ownerServerPlayer.getZ() - 0.5f), (ownerServerPlayer.getX() + 0.5f), (ownerServerPlayer.getY() + 2.2f), (ownerServerPlayer.getZ() + 0.5f));
+                ownerServerPlayer.level().getEntities(EntityTypeTest.forClass(Player.class), searchA, foundPlayer -> {
+                    //If found a Player in the target place where the Allay is going, get the reference for the Found ServerPlayer...
+                    if (foundPlayer instanceof ServerPlayer foundServerPlayer)
+                        if (foundServerPlayer != ownerServerPlayer && foundServerPlayer.gameMode.getGameModeForPlayer() != GameType.SPECTATOR){
+                            //Add a height in the Y where the Allay will be moved
+                            yOffset[0] = (float)(foundPlayer.getEyePosition().y + 0.3d);
+                            //Stop the search...
+                            return true;
+                        }
+                    //Continue the search...
+                    return false;
+                });
+                //Move the Allay to the current Player position and rotate their Body to represent the Player
+                if (yOffset[0] == 0.0f)
+                    targetAllay.moveTo(ownerServerPlayer.getX(), (ownerServerPlayer.getY() + 0.0f), ownerServerPlayer.getZ(), ownerServerPlayer.getYRot(), ownerServerPlayer.getXRot());
+                if (yOffset[0] != 0.0f)
+                    targetAllay.moveTo(ownerServerPlayer.getX(), yOffset[0], ownerServerPlayer.getZ(), ownerServerPlayer.getYRot(), ownerServerPlayer.getXRot());
+                //Control the Head of the Allay, to represent the Player
+                targetAllay.setYHeadRot(ownerServerPlayer.getYRot());
+                targetAllay.setYBodyRot(ownerServerPlayer.getYRot());
+            }
+
+        //Iterate through all Vexes of Spectators, if have Vexes for it
+        if (vexesOfSpectators != null)
+            for (Map.Entry<Vex, ServerPlayer> entry : vexesOfSpectators.entrySet()){
+                //Get the references
+                Vex targetVex = entry.getKey();
+                ServerPlayer ownerServerPlayer = entry.getValue();
+                //If have a null reference, skip to next
+                if (targetVex == null || ownerServerPlayer == null)
+                    continue;
+                //Move the Vex to the current Player position and rotate their Body to represent the Player
+                targetVex.moveTo(ownerServerPlayer.getX(), (ownerServerPlayer.getY() + 0.0f), ownerServerPlayer.getZ(), ownerServerPlayer.getYRot(), ownerServerPlayer.getXRot());
+                //Control the Head of the Vex, to represent the Player
+                targetVex.setYHeadRot(ownerServerPlayer.getYRot());
+                targetVex.setYBodyRot(ownerServerPlayer.getYRot());
+            }
     }
 }
