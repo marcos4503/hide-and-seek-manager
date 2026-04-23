@@ -28,6 +28,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.allay.Allay;
@@ -61,6 +62,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import virtuoel.pehkui.api.ScaleData;
 import virtuoel.pehkui.api.ScaleType;
 import virtuoel.pehkui.api.ScaleTypes;
+import xyz.windsoft.hidenseek.Main;
 import xyz.windsoft.hidenseek.block.custom.GameTotemHeadPoweredBlock;
 import xyz.windsoft.hidenseek.block.entity.GameTotemHeadPoweredBlockEntity;
 import xyz.windsoft.hidenseek.config.Config;
@@ -87,11 +89,11 @@ public class GameManagerLogic {
     //Private constant variables
     private static SoundEvent[] HIDDER_CLUES = {SoundEvents.VILLAGER_AMBIENT, SoundEvents.PANDA_SNEEZE, SoundEvents.BEE_LOOP, SoundEvents.WOOD_STEP, SoundEvents.CHICKEN_HURT, SoundEvents.GOAT_SCREAMING_AMBIENT, SoundEvents.GHAST_AMBIENT};
     private static SoundEvent[] HIDDER_WHISTLE = {ModSounds.WHISTLE_0.get(), ModSounds.WHISTLE_1.get(), ModSounds.WHISTLE_2.get(), ModSounds.WHISTLE_3.get()};
-    private static Predicate<Player> ALLAY_VEX_COLLISION_FILTER = player -> player.isAlive() && !player.isSpectator();
 
     //Private static cache variables (not needed to be reseted on game finished)
     private static UUID lastPlayerSeeker = null;
     private static HashMap<Item, Integer> itemsAndTheirCooldowns = null;
+    private static int ticksUntilClearDroppedItems = -1;
 
     //Private static cache variables
     private static int ticksPassedInCurrentStage = 0;
@@ -228,6 +230,15 @@ public class GameManagerLogic {
         //If not is the logical server, stop here
         //if (FMLEnvironment.dist != Dist.DEDICATED_SERVER)
         //    return;
+
+        //If is needed to clear all items on the next tick, do it
+        if (ticksUntilClearDroppedItems > -1){
+            //Do the clearing, if it's time
+            if (ticksUntilClearDroppedItems == 0)
+                ClearAllDroppedItemsNow(event);
+            //Decrease the ticks counter
+            ticksUntilClearDroppedItems -= 1;
+        }
 
         //Do the processing on Spectator Allays and Vexes, if necessary
         ProcessAllSpectatorAllaysAndVexesOnServerTick(event);
@@ -1064,12 +1075,16 @@ public class GameManagerLogic {
             Objective scoreboardObjective = scoreboard.getObjective("hidenseek_scb");
             if (scoreboardObjective != null)
                 scoreboard.removeObjective(scoreboardObjective);
-            //Delete all Entities that have the tag of "entity_to_clear"...
-            serverLevel.getEntities().getAll().forEach(entity -> {
-                if (entity != null)
-                    if (entity.getTags().contains("entity_to_clear"))
-                        entity.discard();
-            });
+            //Try to delete all Entities that have the tag of "entity_to_clear"...
+            try{
+                //Iterate through all Entities found with the Tag to clear...
+                serverLevel.getEntities().getAll().forEach(entity -> {
+                    if (entity != null)
+                        if (entity.getTags().contains("entity_to_clear"))
+                            entity.discard();
+                });
+            }
+            catch (Exception e) { LogUtils.getLogger().info("Hide'n Seek Manager: Error when clearing the Entities with tag of 'entity_to_clear'."); }
 
             //Teleport all Players to the front of the Game Totem
             for (int i = 0; i < onlinePlayers.size(); i++)
@@ -1488,5 +1503,24 @@ public class GameManagerLogic {
                 targetVex.setYHeadRot(ownerServerPlayer.getYRot());
                 targetVex.setYBodyRot(ownerServerPlayer.getYRot());
             }
+    }
+
+    public static void ClearAllDroppedItemsOnNextTick(){
+        //Inform that is needed to clear all items on next tick
+        ticksUntilClearDroppedItems = 3;
+    }
+
+    public static void ClearAllDroppedItemsNow(TickEvent.ServerTickEvent event){
+        //Try to delete all Dropped Items
+        try{
+            //Iterate through all ItemEntities existing...
+            event.getServer().getLevel(ServerLevel.OVERWORLD).getEntities().getAll().forEach(entity -> {
+                if (entity instanceof ItemEntity item)
+                    item.discard();
+            });
+            //Log that all the Items was cleared
+            LogUtils.getLogger().info("Hide'n Seek Manager: Dropped Items was cleared.");
+        }
+        catch (Exception e) { LogUtils.getLogger().info("Hide'n Seek Manager: Error when clearing the dropped Items."); }
     }
 }

@@ -86,6 +86,7 @@ public class Main
         MinecraftForge.EVENT_BUS.register(new OnServerStarted());
         MinecraftForge.EVENT_BUS.register(new OnServerTick());
         MinecraftForge.EVENT_BUS.register(new OnPlayerLogin());
+        MinecraftForge.EVENT_BUS.register(new OnPlayerDeath());
         MinecraftForge.EVENT_BUS.register(new OnPlayerClone());
         MinecraftForge.EVENT_BUS.register(new OnDamage());
         MinecraftForge.EVENT_BUS.register(new OnLivingFall());
